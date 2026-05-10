@@ -71,7 +71,6 @@ def inject_css() -> None:
     .yv-story {{ font-size:clamp(18px, 2.2vw, 25px); line-height:1.62; color:rgba(250,246,239,.92); max-width:820px; }}
     .yv-white-muted {{ color:rgba(250,246,239,.76); font-size:15px; line-height:1.55; }}
     .yv-pill {{ display:inline-flex; align-items:center; justify-content:center; padding:7px 13px; border-radius:999px; background:rgba(14,42,71,.08); color:{BRAND_BLUE}; font-size:12px; font-weight:900; border:1px solid rgba(14,42,71,.08); margin:3px 5px 3px 0; }}
-    .yv-pill-light {{ display:inline-flex; align-items:center; justify-content:center; padding:8px 14px; border-radius:999px; background:rgba(250,246,239,.12); color:{BRAND_BG_SOFT}; font-size:12px; font-weight:900; border:1px solid rgba(250,246,239,.20); margin:3px 5px 3px 0; }}
     .yv-grid {{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; margin:18px 0; }}
     .yv-mini {{ background:rgba(255,255,255,.62); border:1px solid rgba(14,42,71,.1); border-radius:22px; padding:18px; box-shadow:0 12px 28px rgba(14,42,71,.05); }}
     .yv-mini b {{ color:{BRAND_BLUE}; }}
@@ -81,7 +80,6 @@ def inject_css() -> None:
     .yv-progress {{ display:flex; gap:7px; margin:18px 0 22px; overflow:hidden; }}
     .yv-dot {{ height:7px; flex:1; border-radius:999px; background:rgba(14,42,71,.15); }}
     .yv-dot-on {{ background:linear-gradient(90deg, {BRAND_GOLD}, #E6D1A0); box-shadow:0 0 12px rgba(198,169,106,.45); }}
-    .yv-login-logo img {{ border-radius:50%; box-shadow:0 18px 48px rgba(0,0,0,.20); }}
     .yv-reveal {{ animation:revealUp .9s cubic-bezier(.2,.8,.2,1) both; }}
     .yv-delay-1 {{ animation-delay:.12s; }} .yv-delay-2 {{ animation-delay:.24s; }} .yv-delay-3 {{ animation-delay:.36s; }}
     .stButton > button {{ border-radius:999px !important; background:{BRAND_BLUE} !important; color:{BRAND_BG_SOFT} !important; border:1px solid rgba(14,42,71,.2) !important; min-height:2.9rem !important; font-weight:900 !important; padding:0 22px !important; }}
@@ -148,47 +146,26 @@ def validate_token(token: str) -> bool:
 
 def log_login(nome: str, telefone: str, token: str, status: str) -> None:
     try:
-        append_row("login_logs", {
-            "created_at": datetime.now().isoformat(timespec="seconds"),
-            "nome": nome,
-            "telefone": telefone,
-            "token": token,
-            "status": status,
-            "session_token": st.session_state.session_token,
-            "user_agent": "",
-        })
+        append_row("login_logs", {"created_at": datetime.now().isoformat(timespec="seconds"), "nome": nome, "telefone": telefone, "token": token, "status": status, "session_token": st.session_state.session_token, "user_agent": ""})
     except Exception:
         pass
 
 
 def ensure_session() -> None:
-    defaults = {
-        "session_token": str(uuid.uuid4()),
-        "authenticated": False,
-        "guest_name": "",
-        "guest_phone": "",
-        "guest_token": "",
-        "selected_experience": None,
-        "step_index": 0,
-        "saved_answers": set(),
-    }
+    defaults = {"session_token": str(uuid.uuid4()), "authenticated": False, "guest_name": "", "guest_phone": "", "guest_token": "", "selected_experience": None, "step_index": 0, "saved_answers": set()}
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
 
 
-def logo_html_or_image(width: int = 112):
-    logo_path = find_logo_path()
-    if logo_path:
-        st.image(logo_path, width=width)
-    else:
-        st.markdown('<div class="yv-logo-mark">Y</div>', unsafe_allow_html=True)
-
-
 def render_header(subtitle: str = "") -> None:
     col_logo, col_text = st.columns([1, 8])
     with col_logo:
-        logo_html_or_image(78)
+        logo_path = find_logo_path()
+        if logo_path:
+            st.image(logo_path, width=78)
+        else:
+            st.markdown('<div class="yv-logo-mark">Y</div>', unsafe_allow_html=True)
     with col_text:
         st.markdown(f'<h1 class="yv-title">{APP_TITLE}</h1><div class="yv-subtitle">{subtitle}</div>', unsafe_allow_html=True)
 
@@ -203,21 +180,12 @@ def render_login() -> None:
     texto = safe(row.get("texto_abertura"), "Você foi convidado para uma experiência criada para revelar sabores que normalmente passam despercebidos.")
     img = safe(row.get("imagem_capa_url"))
     bg_style = f"background-image:url('{img}');" if img else "background-image:radial-gradient(circle at 70% 30%, rgba(198,169,106,.28), transparent 38%);"
-
     st.markdown(f"""
     <section class="yv-cinema">
-      <div class="yv-cinema-bg" style="{bg_style}"></div>
-      <div class="yv-orb"></div>
-      <div class="yv-cinema-content">
-        <div class="yv-kicker yv-reveal">WELCOME TO YVORA</div>
-        <div class="yv-h1 yv-reveal yv-delay-1">Sensorial Experience</div>
-        <div class="yv-story yv-reveal yv-delay-2">{texto}</div>
-        <br>
-        <div class="yv-white-muted yv-reveal yv-delay-3">Antes de iniciar, identifique-se para liberar sua jornada.</div>
-      </div>
+      <div class="yv-cinema-bg" style="{bg_style}"></div><div class="yv-orb"></div>
+      <div class="yv-cinema-content"><div class="yv-kicker yv-reveal">WELCOME TO YVORA</div><div class="yv-h1 yv-reveal yv-delay-1">Sensorial Experience</div><div class="yv-story yv-reveal yv-delay-2">{texto}</div><br><div class="yv-white-muted yv-reveal yv-delay-3">Antes de iniciar, identifique-se para liberar sua jornada.</div></div>
     </section>
     """, unsafe_allow_html=True)
-
     st.markdown('<div class="yv-card yv-reveal">', unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1.2, 1, .7])
     with col1:
@@ -225,8 +193,8 @@ def render_login() -> None:
     with col2:
         telefone = st.text_input("Telefone", placeholder="DDD + telefone")
     with col3:
-        token = st.text_input("Token", placeholder="100")
-    if st.button("Entrar na experiência"):
+        token = st.text_input("Token", placeholder="")
+    if st.button("Vamos iniciar"):
         if not nome.strip() or not telefone.strip() or not token.strip():
             st.warning("Preencha nome, telefone e token para iniciar.")
         elif validate_token(token):
@@ -261,14 +229,7 @@ def render_landing() -> None:
     for _, r in exps.iterrows():
         row = r.to_dict()
         exp_id = safe(row.get("experience_id"))
-        st.markdown(f"""
-        <div class="yv-card yv-reveal">
-          <div class="yv-kicker">Experiência disponível</div>
-          <div class="yv-h2">{safe(row.get('nome_sessao'), APP_TITLE)}</div>
-          <div class="yv-muted"><b>{safe(row.get('subtitulo'))}</b><br>{safe(row.get('descricao_card'))}</div>
-          <br><span class="yv-pill">Carnes & Queijos</span><span class="yv-pill">Vinhos</span><span class="yv-pill">Guiada</span>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f"""<div class="yv-card yv-reveal"><div class="yv-kicker">Experiência disponível</div><div class="yv-h2">{safe(row.get('nome_sessao'), APP_TITLE)}</div><div class="yv-muted"><b>{safe(row.get('subtitulo'))}</b><br>{safe(row.get('descricao_card'))}</div><br><span class="yv-pill">Carnes & Queijos</span><span class="yv-pill">Vinhos</span><span class="yv-pill">Guiada</span></div>""", unsafe_allow_html=True)
         if st.button(safe(row.get("botao_inicio"), "Iniciar jornada"), key=f"start_{exp_id}"):
             st.session_state.selected_experience = exp_id
             st.session_state.step_index = 0
@@ -292,25 +253,7 @@ def render_journey(row: Dict[str, Any], idx: int, total: int) -> None:
     img = safe(row.get("imagem_url"))
     bg_style = f"background-image:url('{img}');" if img else "background-image:radial-gradient(circle at 70% 30%, rgba(198,169,106,.28), transparent 38%);"
     st.markdown(f"""
-    <section class="yv-cinema">
-      <div class="yv-cinema-bg" style="{bg_style}"></div>
-      <div class="yv-orb"></div>
-      <div class="yv-cinema-content">
-        <div class="yv-kicker yv-reveal">{safe(row.get('conceito_sensorial'), APP_TITLE)}</div>
-        <div class="yv-h1 yv-reveal yv-delay-1">{safe(row.get('titulo_tela'))}</div>
-        <div class="yv-story yv-reveal yv-delay-2"><b>{safe(row.get('subtitulo_tela'))}</b></div>
-        <br>
-        <div class="yv-story yv-reveal yv-delay-3">{safe(row.get('texto_principal'))}</div>
-        <div class="yv-steps yv-reveal yv-delay-3">
-          <div class="yv-step"><b>1. Carne</b><br>{safe(row.get('carne'))}</div>
-          <div class="yv-step"><b>2. Queijo</b><br>{safe(row.get('queijo'))}</div>
-          <div class="yv-step"><b>3. Juntos</b><br>Prove a dupla na ordem indicada.</div>
-          <div class="yv-step"><b>4. Vinho</b><br>{safe(row.get('vinho'))}</div>
-        </div>
-        <br>
-        <div class="yv-white-muted yv-reveal yv-delay-3">{safe(row.get('instrucao_cliente'))}</div>
-      </div>
-    </section>
+    <section class="yv-cinema"><div class="yv-cinema-bg" style="{bg_style}"></div><div class="yv-orb"></div><div class="yv-cinema-content"><div class="yv-kicker yv-reveal">{safe(row.get('conceito_sensorial'), APP_TITLE)}</div><div class="yv-h1 yv-reveal yv-delay-1">{safe(row.get('titulo_tela'))}</div><div class="yv-story yv-reveal yv-delay-2"><b>{safe(row.get('subtitulo_tela'))}</b></div><br><div class="yv-story yv-reveal yv-delay-3">{safe(row.get('texto_principal'))}</div><div class="yv-steps yv-reveal yv-delay-3"><div class="yv-step"><b>1. Carne</b><br>{safe(row.get('carne'))}</div><div class="yv-step"><b>2. Queijo</b><br>{safe(row.get('queijo'))}</div><div class="yv-step"><b>3. Juntos</b><br>Prove a dupla na ordem indicada.</div><div class="yv-step"><b>4. Vinho</b><br>{safe(row.get('vinho'))}</div></div><br><div class="yv-white-muted yv-reveal yv-delay-3">{safe(row.get('instrucao_cliente'))}</div></div></section>
     """, unsafe_allow_html=True)
     details = []
     for label, col in [("Carne", "carne"), ("Queijo", "queijo"), ("Vinho", "vinho"), ("Perfil", "perfil_vinho")]:
@@ -320,7 +263,7 @@ def render_journey(row: Dict[str, Any], idx: int, total: int) -> None:
         st.markdown('<div class="yv-grid">' + ''.join(details) + '</div>', unsafe_allow_html=True)
 
 
-def render_final(row: Dict[str, Any], idx: int, total: int) -> None:
+def render_final(row: Dict[str, Any], idx: int, total: int) -> tuple[str, str]:
     render_journey(row, idx, total)
     options = split_options(row.get("opcoes_feedback"))
     escolha = st.selectbox("Qual jornada mais marcou sua experiência?", options) if options else ""
@@ -333,21 +276,7 @@ def save_feedback(row: Dict[str, Any], resposta: str, comentario: str = "") -> N
     key = f"{etapa_id}:{resposta}:{comentario}"
     if key in st.session_state.saved_answers:
         return
-    append_row("feedbacks", {
-        "created_at": datetime.now().isoformat(timespec="seconds"),
-        "experience_id": safe(row.get("experience_id")),
-        "etapa_id": etapa_id,
-        "jornada_numero": safe(row.get("jornada_numero")),
-        "nome_jornada": safe(row.get("nome_jornada")),
-        "tipo_tela": safe(row.get("tipo_tela")),
-        "session_token": st.session_state.session_token,
-        "nome": st.session_state.guest_name,
-        "telefone": st.session_state.guest_phone,
-        "token": st.session_state.guest_token,
-        "resposta": resposta,
-        "comentario_final": comentario,
-        "user_agent": "",
-    })
+    append_row("feedbacks", {"created_at": datetime.now().isoformat(timespec="seconds"), "experience_id": safe(row.get("experience_id")), "etapa_id": etapa_id, "jornada_numero": safe(row.get("jornada_numero")), "nome_jornada": safe(row.get("nome_jornada")), "tipo_tela": safe(row.get("tipo_tela")), "session_token": st.session_state.session_token, "nome": st.session_state.guest_name, "telefone": st.session_state.guest_phone, "token": st.session_state.guest_token, "resposta": resposta, "comentario_final": comentario, "user_agent": ""})
     st.session_state.saved_answers.add(key)
 
 
@@ -367,7 +296,6 @@ def render_experience(experience_id: str) -> None:
         options = split_options(row.get("opcoes_feedback"))
         resposta = st.radio("A jornada funcionou para você?", options, horizontal=True, key=f"fb_{safe(row.get('etapa_id'))}") if options else ""
         escolha, comentario = resposta, ""
-
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         if idx > 0 and st.button("Retornar"):
@@ -394,11 +322,9 @@ def render_experience(experience_id: str) -> None:
 
 ensure_session()
 inject_css()
-
 query_params = st.query_params
 if query_params.get("experience") and not st.session_state.selected_experience:
     st.session_state.selected_experience = query_params.get("experience")
-
 if not st.session_state.authenticated:
     render_login()
 elif st.session_state.selected_experience:
