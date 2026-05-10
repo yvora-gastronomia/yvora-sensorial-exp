@@ -3,6 +3,7 @@ import os
 import re
 import uuid
 from datetime import datetime
+from html import escape
 from typing import Any, Dict, List, Optional, Tuple
 
 import gspread
@@ -31,11 +32,7 @@ LOGO_PATHS = [
     "assets/yvora_logo.jpg",
 ]
 
-st.set_page_config(
-    page_title=APP_TITLE,
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
+st.set_page_config(page_title=APP_TITLE, layout="wide", initial_sidebar_state="collapsed")
 
 
 def safe(value: Any, default: str = "") -> str:
@@ -50,23 +47,17 @@ def safe(value: Any, default: str = "") -> str:
     return text if text else default
 
 
+def esc(value: Any) -> str:
+    return escape(safe(value))
+
+
 def is_active(value: Any) -> bool:
-    return safe(value).lower() in [
-        "1",
-        "sim",
-        "ativo",
-        "true",
-        "yes",
-        "publicado",
-        "live",
-    ]
+    return safe(value).lower() in ["1", "sim", "ativo", "true", "yes", "publicado", "live"]
 
 
 def split_options(value: Any) -> List[str]:
     text = safe(value)
-    if not text:
-        return []
-    return [x.strip() for x in text.split(";") if x.strip()]
+    return [x.strip() for x in text.split(";") if x.strip()] if text else []
 
 
 def find_logo_path() -> Optional[str]:
@@ -87,7 +78,6 @@ def split_story_blocks(text: str) -> List[Tuple[str, str]]:
         "EXPERIÊNCIA",
         "CONCLUSÃO",
     ]
-
     pattern = r"(" + "|".join([re.escape(label) for label in labels]) + r")\s*\|"
     parts = re.split(pattern, safe(text))
 
@@ -96,7 +86,6 @@ def split_story_blocks(text: str) -> List[Tuple[str, str]]:
 
     blocks: List[Tuple[str, str]] = []
     prefix = parts[0].strip()
-
     if prefix:
         blocks.append(("RITUAL", prefix))
 
@@ -129,12 +118,12 @@ footer,
 }}
 
 html, body, [data-testid="stAppViewContainer"] {{
-    scroll-behavior: smooth;
     background:
         radial-gradient(circle at 12% 8%, rgba(198,169,106,0.20), transparent 30%),
         radial-gradient(circle at 92% 18%, rgba(14,42,71,0.10), transparent 34%),
         linear-gradient(135deg, {BRAND_BG_SOFT} 0%, {BRAND_BG} 100%) !important;
     color: {BRAND_TEXT};
+    scroll-behavior: smooth;
 }}
 
 .block-container {{
@@ -172,6 +161,15 @@ html, body, [data-testid="stAppViewContainer"] {{
     font-size: 14px;
 }}
 
+.yv-card {{
+    background: rgba(255,255,255,.72);
+    border: 1px solid rgba(14,42,71,.12);
+    border-radius: 30px;
+    padding: clamp(20px, 4vw, 38px);
+    box-shadow: 0 18px 50px rgba(14,42,71,.08);
+    margin-bottom: 18px;
+}}
+
 .yv-kicker {{
     color: {BRAND_GOLD};
     font-size: 12px;
@@ -200,16 +198,6 @@ html, body, [data-testid="stAppViewContainer"] {{
     color: rgba(71,55,46,.72);
     font-size: 15px;
     line-height: 1.56;
-}}
-
-.yv-card {{
-    background: rgba(255,255,255,.72);
-    border: 1px solid rgba(14,42,71,.12);
-    border-radius: 30px;
-    padding: clamp(20px, 4vw, 38px);
-    box-shadow: 0 18px 50px rgba(14,42,71,.08);
-    margin-bottom: 18px;
-    overflow: hidden;
 }}
 
 .yv-cinema {{
@@ -257,7 +245,6 @@ html, body, [data-testid="stAppViewContainer"] {{
     border-radius: 50%;
     background: radial-gradient(circle, rgba(198,169,106,.32), transparent 66%);
     z-index: 2;
-    animation: floatOrb 8s ease-in-out infinite alternate;
 }}
 
 .yv-story {{
@@ -285,7 +272,7 @@ html, body, [data-testid="stAppViewContainer"] {{
     border: 1px solid rgba(14,42,71,.10);
     border-radius: 22px;
     padding: 18px;
-    min-height: 138px;
+    min-height: 120px;
 }}
 
 .yv-overview-card b {{
@@ -384,22 +371,6 @@ html, body, [data-testid="stAppViewContainer"] {{
     padding: 50px 24px;
 }}
 
-.yv-reveal {{
-    animation: revealUp .9s cubic-bezier(.2,.8,.2,1) both;
-}}
-
-.yv-delay-1 {{
-    animation-delay: .12s;
-}}
-
-.yv-delay-2 {{
-    animation-delay: .24s;
-}}
-
-.yv-delay-3 {{
-    animation-delay: .36s;
-}}
-
 .stButton > button {{
     border-radius: 999px !important;
     background: {BRAND_BLUE} !important;
@@ -421,37 +392,9 @@ button[kind="secondary"] {{
     font-size: 28px !important;
 }}
 
-@keyframes revealUp {{
-    from {{
-        opacity: 0;
-        transform: translateY(22px);
-        filter: blur(8px);
-    }}
-    to {{
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-    }}
-}}
-
 @keyframes slowZoom {{
-    from {{
-        transform: scale(1.04);
-    }}
-    to {{
-        transform: scale(1.14);
-    }}
-}}
-
-@keyframes floatOrb {{
-    from {{
-        transform: translateY(0);
-        opacity: .7;
-    }}
-    to {{
-        transform: translateY(28px);
-        opacity: 1;
-    }}
+    from {{ transform: scale(1.04); }}
+    to {{ transform: scale(1.14); }}
 }}
 
 @media(max-width:760px) {{
@@ -600,8 +543,8 @@ def render_header(subtitle: str = "") -> None:
     with col_text:
         st.markdown(
             f"""
-<h1 class="yv-title">{APP_TITLE}</h1>
-<div class="yv-subtitle">{subtitle}</div>
+<h1 class="yv-title">{esc(APP_TITLE)}</h1>
+<div class="yv-subtitle">{esc(subtitle)}</div>
 """,
             unsafe_allow_html=True,
         )
@@ -626,7 +569,7 @@ def render_login() -> None:
 
     img = safe(row.get("imagem_capa_url"))
     bg_style = (
-        f"background-image:url('{img}');"
+        f"background-image:url('{esc(img)}');"
         if img
         else "background-image:radial-gradient(circle at 70% 30%, rgba(198,169,106,.28), transparent 38%);"
     )
@@ -637,18 +580,18 @@ def render_login() -> None:
   <div class="yv-cinema-bg" style="{bg_style}"></div>
   <div class="yv-orb"></div>
   <div class="yv-cinema-content">
-    <div class="yv-kicker yv-reveal">WELCOME TO YVORA</div>
-    <div class="yv-h1 yv-reveal yv-delay-1">Sensorial Experience</div>
-    <div class="yv-story yv-reveal yv-delay-2">{texto}</div>
+    <div class="yv-kicker">WELCOME TO YVORA</div>
+    <div class="yv-h1">Sensorial Experience</div>
+    <div class="yv-story">{esc(texto)}</div>
     <br>
-    <div class="yv-white-muted yv-reveal yv-delay-3">Antes de iniciar, identifique-se para liberar sua jornada.</div>
+    <div class="yv-white-muted">Antes de iniciar, identifique-se para liberar sua jornada.</div>
   </div>
 </section>
 """,
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="yv-card yv-reveal">', unsafe_allow_html=True)
+    st.markdown('<div class="yv-card">', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1.2, 1, 0.7])
 
@@ -670,21 +613,10 @@ def render_login() -> None:
             st.session_state.guest_phone = telefone.strip()
             st.session_state.guest_token = token.strip()
 
-            log_login(
-                nome.strip(),
-                telefone.strip(),
-                token.strip(),
-                "autorizado",
-            )
-
+            log_login(nome.strip(), telefone.strip(), token.strip(), "autorizado")
             st.rerun()
         else:
-            log_login(
-                nome.strip(),
-                telefone.strip(),
-                token.strip(),
-                "negado",
-            )
+            log_login(nome.strip(), telefone.strip(), token.strip(), "negado")
             st.error("Token inválido ou inativo.")
 
     st.markdown("</div>", unsafe_allow_html=True)
@@ -705,7 +637,6 @@ def active_experiences() -> pd.DataFrame:
 
 def render_landing() -> None:
     exps = active_experiences()
-
     render_header(f"Bem-vindo, {st.session_state.guest_name}. Escolha a sessão para iniciar.")
 
     if exps.empty:
@@ -727,10 +658,10 @@ def render_landing() -> None:
 
         st.markdown(
             f"""
-<div class="yv-card yv-reveal">
+<div class="yv-card">
   <div class="yv-kicker">Experiência disponível</div>
-  <div class="yv-h2">{safe(row.get("nome_sessao"), APP_TITLE)}</div>
-  <div class="yv-muted"><b>{safe(row.get("subtitulo"))}</b><br>{safe(row.get("descricao_card"))}</div>
+  <div class="yv-h2">{esc(row.get("nome_sessao", APP_TITLE))}</div>
+  <div class="yv-muted"><b>{esc(row.get("subtitulo"))}</b><br>{esc(row.get("descricao_card"))}</div>
   {overview}
 </div>
 """,
@@ -757,68 +688,54 @@ def current_steps(experience_id: str) -> pd.DataFrame:
         df = df[df["ativo"].apply(is_active)]
 
     df["ordem"] = pd.to_numeric(df.get("ordem", 0), errors="coerce").fillna(0).astype(int)
-
     return df.sort_values("ordem").reset_index(drop=True)
 
 
 def render_journey(row: Dict[str, Any], idx: int, total: int) -> None:
-    st.markdown(
-        """
-<script>
-window.scrollTo(0, 0);
-</script>
-""",
-        unsafe_allow_html=True,
-    )
-
+    st.markdown('<script>window.scrollTo(0,0);</script>', unsafe_allow_html=True)
     st.markdown(progress_strip(total, idx), unsafe_allow_html=True)
 
     img = safe(row.get("imagem_url"))
     bg_style = (
-        f"background-image:url('{img}');"
+        f"background-image:url('{esc(img)}');"
         if img
         else "background-image:radial-gradient(circle at 70% 30%, rgba(198,169,106,.28), transparent 38%);"
     )
 
-    blocks = split_story_blocks(safe(row.get("texto_principal")))
-
     block_html = ""
-    for title, body in blocks:
-        block_html += f"""
-<div class="yv-story-block">
-  <div class="yv-story-block-title">{title}</div>
-  <div>{body}</div>
-</div>
-"""
+    for title, body in split_story_blocks(safe(row.get("texto_principal"))):
+        block_html += (
+            '<div class="yv-story-block">'
+            f'<div class="yv-story-block-title">{esc(title)}</div>'
+            f'<div>{esc(body)}</div>'
+            "</div>"
+        )
 
-    st.markdown(
-        f"""
+    step_html = (
+        '<div class="yv-steps">'
+        f'<div class="yv-step"><b>1. Carne</b><br>{esc(row.get("carne"))}</div>'
+        f'<div class="yv-step"><b>2. Queijo</b><br>{esc(row.get("queijo"))}</div>'
+        '<div class="yv-step"><b>3. Juntos</b><br>Prove a dupla na ordem indicada.</div>'
+        f'<div class="yv-step"><b>4. Vinho</b><br>{esc(row.get("vinho"))}</div>'
+        "</div>"
+    )
+
+    html = f"""
 <section class="yv-cinema">
   <div class="yv-cinema-bg" style="{bg_style}"></div>
   <div class="yv-orb"></div>
   <div class="yv-cinema-content">
-    <div class="yv-kicker yv-reveal">{safe(row.get("conceito_sensorial"), APP_TITLE)}</div>
-    <div class="yv-h1 yv-reveal yv-delay-1">{safe(row.get("titulo_tela"))}</div>
-    <div class="yv-story yv-reveal yv-delay-2"><b>{safe(row.get("subtitulo_tela"))}</b></div>
-
-    <div class="yv-blocks yv-reveal yv-delay-3">
-      {block_html}
-    </div>
-
-    <div class="yv-steps yv-reveal yv-delay-3">
-      <div class="yv-step"><b>1. Carne</b><br>{safe(row.get("carne"))}</div>
-      <div class="yv-step"><b>2. Queijo</b><br>{safe(row.get("queijo"))}</div>
-      <div class="yv-step"><b>3. Juntos</b><br>Prove a dupla na ordem indicada.</div>
-      <div class="yv-step"><b>4. Vinho</b><br>{safe(row.get("vinho"))}</div>
-    </div>
-
+    <div class="yv-kicker">{esc(row.get("conceito_sensorial", APP_TITLE))}</div>
+    <div class="yv-h1">{esc(row.get("titulo_tela"))}</div>
+    <div class="yv-story"><b>{esc(row.get("subtitulo_tela"))}</b></div>
+    <div class="yv-blocks">{block_html}</div>
+    {step_html}
     <br>
-    <div class="yv-white-muted yv-reveal yv-delay-3">{safe(row.get("instrucao_cliente"))}</div>
+    <div class="yv-white-muted">{esc(row.get("instrucao_cliente"))}</div>
   </div>
 </section>
-""",
-        unsafe_allow_html=True,
-    )
+"""
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_final(row: Dict[str, Any], idx: int, total: int) -> Tuple[str, str]:
@@ -826,11 +743,7 @@ def render_final(row: Dict[str, Any], idx: int, total: int) -> Tuple[str, str]:
 
     options = split_options(row.get("opcoes_feedback"))
     escolha = st.selectbox("Qual jornada mais marcou sua experiência?", options) if options else ""
-    comentario = st.text_area(
-        "Comentário opcional",
-        placeholder="Conte o que mais chamou sua atenção",
-    )
-
+    comentario = st.text_area("Comentário opcional", placeholder="Conte o que mais chamou sua atenção")
     return escolha, comentario
 
 
@@ -894,7 +807,7 @@ def render_optional_feedback(row: Dict[str, Any]) -> str:
 
     if st.session_state[key]:
         st.markdown(
-            f'<div class="yv-feedback-selected">Feedback selecionado: {st.session_state[key]}</div>',
+            f'<div class="yv-feedback-selected">Feedback selecionado: {esc(st.session_state[key])}</div>',
             unsafe_allow_html=True,
         )
 
