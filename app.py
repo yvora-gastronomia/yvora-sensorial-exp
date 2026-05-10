@@ -12,6 +12,7 @@ from google.oauth2.service_account import Credentials
 
 
 APP_TITLE = "YVORA Sensorial Experience"
+DEFAULT_SHEET_ID = "13dJLL4TzMFvJEjn767sDL5nuQ2JY5zJVyRyFltkD87I"
 
 BRAND_BG = "#EFE7DD"
 BRAND_BG_SOFT = "#FAF6EF"
@@ -30,8 +31,6 @@ LOGO_PATHS = [
     "assets/yvora_logo.jpg",
 ]
 
-DEFAULT_SHEET_ID = "13dJLL4TzMFvJEjn767sDL5nuQ2JY5zJVyRyFltkD87I"
-
 st.set_page_config(
     page_title=APP_TITLE,
     layout="wide",
@@ -47,7 +46,6 @@ def safe(value: Any, default: str = "") -> str:
             return default
     except Exception:
         pass
-
     text = str(value).strip()
     return text if text else default
 
@@ -94,11 +92,11 @@ def split_story_blocks(text: str) -> List[Tuple[str, str]]:
     parts = re.split(pattern, safe(text))
 
     if len(parts) <= 1:
-        return [("RITUAL", text)]
+        return [("RITUAL", safe(text))]
 
     blocks: List[Tuple[str, str]] = []
-
     prefix = parts[0].strip()
+
     if prefix:
         blocks.append(("RITUAL", prefix))
 
@@ -273,20 +271,6 @@ html, body, [data-testid="stAppViewContainer"] {{
     color: rgba(250,246,239,.76);
     font-size: 15px;
     line-height: 1.55;
-}}
-
-.yv-pill {{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 13px;
-    border-radius: 999px;
-    background: rgba(14,42,71,.08);
-    color: {BRAND_BLUE};
-    font-size: 12px;
-    font-weight: 900;
-    border: 1px solid rgba(14,42,71,.08);
-    margin: 3px 5px 3px 0;
 }}
 
 .yv-overview {{
@@ -491,15 +475,12 @@ button[kind="secondary"] {{
     }}
 }}
 </style>
-<script>
-window.scrollTo(0, 0);
-</script>
 """,
         unsafe_allow_html=True,
     )
 
 
-@st.cache_resource(ttl=300)
+@st.cache_resource(ttl=600)
 def get_client():
     google_block = st.secrets.get("google", {})
 
@@ -524,7 +505,7 @@ def get_client():
     return gspread.authorize(creds)
 
 
-@st.cache_resource(ttl=300)
+@st.cache_resource(ttl=600)
 def get_workbook():
     google_block = st.secrets.get("google", {})
     sheet_id = (
@@ -535,7 +516,7 @@ def get_workbook():
     return get_client().open_by_key(sheet_id)
 
 
-@st.cache_data(ttl=10)
+@st.cache_data(ttl=180)
 def read_df(tab: str) -> pd.DataFrame:
     try:
         ws = get_workbook().worksheet(tab)
@@ -924,7 +905,7 @@ def render_celebration() -> None:
     render_header("Degustação concluída")
 
     st.markdown(
-        f"""
+        """
 <section class="yv-cinema">
   <div class="yv-cinema-bg" style="background-image:radial-gradient(circle at 70% 30%, rgba(198,169,106,.34), transparent 38%);"></div>
   <div class="yv-orb"></div>
