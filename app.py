@@ -69,6 +69,7 @@ def find_logo_path() -> Optional[str]:
 
 def split_story_blocks(text: str) -> List[Tuple[str, str]]:
     labels = [
+        "ELEMENTO",
         "ABERTURA",
         "BRASILIDADE",
         "PERCEPÇÃO GUIADA",
@@ -78,6 +79,7 @@ def split_story_blocks(text: str) -> List[Tuple[str, str]]:
         "EXPERIÊNCIA",
         "CONCLUSÃO",
     ]
+
     pattern = r"(" + "|".join([re.escape(label) for label in labels]) + r")\s*\|"
     parts = re.split(pattern, safe(text))
 
@@ -85,6 +87,7 @@ def split_story_blocks(text: str) -> List[Tuple[str, str]]:
         return [("RITUAL", safe(text))]
 
     blocks: List[Tuple[str, str]] = []
+
     prefix = parts[0].strip()
     if prefix:
         blocks.append(("RITUAL", prefix))
@@ -635,46 +638,6 @@ def active_experiences() -> pd.DataFrame:
     return df.sort_values("_ordem")
 
 
-def render_landing() -> None:
-    exps = active_experiences()
-    render_header(f"Bem-vindo, {st.session_state.guest_name}. Escolha a sessão para iniciar.")
-
-    if exps.empty:
-        st.info("Nenhuma experiência disponível.")
-        return
-
-    overview = """
-<div class="yv-overview">
-  <div class="yv-overview-card"><b>Jornada 1</b><br>Prosciutto Crudo, Parmesão 24 meses e Taça 2. Gordura aromática, cristais e umami.</div>
-  <div class="yv-overview-card"><b>Jornada 2</b><br>Pastrami, Canastra curado e Taça 1. Fumaça, especiarias, acidez e limpeza de paladar.</div>
-  <div class="yv-overview-card"><b>Jornada 3</b><br>Copa de Lombo, Queijo Tulha e Taça 1. Cura, gordura longa, cristais e persistência.</div>
-  <div class="yv-overview-card"><b>Jornada 4</b><br>Carpaccio de Lagarto, Queijo Azul e Taça 2. Delicadeza, fungos nobres e fruta do vinho.</div>
-</div>
-"""
-
-    for _, r in exps.iterrows():
-        row = r.to_dict()
-        exp_id = safe(row.get("experience_id"))
-
-        st.markdown(
-            f"""
-<div class="yv-card">
-  <div class="yv-kicker">Experiência disponível</div>
-  <div class="yv-h2">{esc(row.get("nome_sessao", APP_TITLE))}</div>
-  <div class="yv-muted"><b>{esc(row.get("subtitulo"))}</b><br>{esc(row.get("descricao_card"))}</div>
-  {overview}
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
-        if st.button("Entrar na degustação", key=f"start_{exp_id}"):
-            st.session_state.selected_experience = exp_id
-            st.session_state.step_index = 0
-            st.session_state.celebrated = False
-            st.rerun()
-
-
 def current_steps(experience_id: str) -> pd.DataFrame:
     df = read_df("jornada")
 
@@ -688,7 +651,69 @@ def current_steps(experience_id: str) -> pd.DataFrame:
         df = df[df["ativo"].apply(is_active)]
 
     df["ordem"] = pd.to_numeric(df.get("ordem", 0), errors="coerce").fillna(0).astype(int)
+
     return df.sort_values("ordem").reset_index(drop=True)
+
+
+def build_landing_overview(experience_id: str) -> str:
+    steps = current_steps(experience_id)
+
+    if steps.empty:
+        return ""
+
+    if "tipo_tela" in steps.columns:
+        steps = steps[
+            steps["tipo_tela"].astype(str).str.strip().str.lower() == "jornada"
+        ]
+
+    overview = '<div class="yv-overview">'
+
+    for _, row in steps.iterrows():
+        jornada_numero = esc(row.get("jornada_numero"))
+        instrucao = esc(row.get("instrucao_cliente"))
+
+        overview += (
+            f'<div class="yv-overview-card">'
+            f'<b>Jornada {jornada_numero}</b><br>'
+            f'{instrucao}'
+            f'</div>'
+        )
+
+    overview += "</div>"
+    return overview
+
+
+def render_landing() -> None:
+    exps = active_experiences()
+
+    render_header(f"Bem-vindo, {st.session_state.guest_name}. Escolha a sessão para iniciar.")
+
+    if exps.empty:
+        st.info("Nenhuma experiência disponível.")
+        return
+
+    for _, r in exps.iterrows():
+        row = r.to_dict()
+        exp_id = safe(row.get("experience_id"))
+        overview = build_landing_overview(exp_id)
+
+        st.markdown(
+            f"""
+<div class="yv-card">
+  <div class="yv-kicker">Experiência disponível</div>
+  <div class="yv-h2">{esc(row.get("nome_sessao", APP_TITLE))}</div>
+  <div class="yv-muted"><b>{esc(row.get("subtitulo"))}</b><br>{esc(row.get("descricao_card"))}</div>
+  {overview}
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+        if st.button("Vamos iniciar", key=f"start_{exp_id}"):
+            st.session_state.selected_experience = exp_id
+            st.session_state.step_index = 0
+            st.session_state.celebrated = False
+            st.rerun()
 
 
 def render_journey(row: Dict[str, Any], idx: int, total: int) -> None:
@@ -744,6 +769,7 @@ def render_final(row: Dict[str, Any], idx: int, total: int) -> Tuple[str, str]:
     options = split_options(row.get("opcoes_feedback"))
     escolha = st.selectbox("Qual jornada mais marcou sua experiência?", options) if options else ""
     comentario = st.text_area("Comentário opcional", placeholder="Conte o que mais chamou sua atenção")
+
     return escolha, comentario
 
 
