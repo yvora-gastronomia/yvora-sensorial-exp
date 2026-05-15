@@ -12,7 +12,7 @@ import streamlit as st
 from google.oauth2.service_account import Credentials
 
 
-APP_TITLE = "YVORA Sensorial Experience"
+APP_TITLE = "Experiência Tábua YVORA"
 DEFAULT_SHEET_ID = "13dJLL4TzMFvJEjn767sDL5nuQ2JY5zJVyRyFltkD87I"
 
 BRAND_BG = "#EFE7DD"
@@ -594,7 +594,7 @@ def render_login() -> None:
   <div class="yv-orb"></div>
   <div class="yv-cinema-content">
     <div class="yv-kicker">WELCOME TO YVORA</div>
-    <div class="yv-h1">Sensorial Experience</div>
+    <div class="yv-h1">Experiência Tábua YVORA</div>
     <div class="yv-story">{esc(texto)}</div>
     <br>
     <div class="yv-white-muted">Antes de iniciar, identifique-se para liberar sua jornada.</div>
