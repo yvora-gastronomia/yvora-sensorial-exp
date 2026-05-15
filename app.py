@@ -52,7 +52,15 @@ def esc(value: Any) -> str:
 
 
 def is_active(value: Any) -> bool:
-    return safe(value).lower() in ["1", "sim", "ativo", "true", "yes", "publicado", "live"]
+    return safe(value).lower() in [
+        "1",
+        "sim",
+        "ativo",
+        "true",
+        "yes",
+        "publicado",
+        "live",
+    ]
 
 
 def split_options(value: Any) -> List[str]:
@@ -75,6 +83,8 @@ def split_story_blocks(text: str) -> List[Tuple[str, str]]:
         "PERCEPÇÃO GUIADA",
         "ENCONTRO",
         "VINHO",
+        "BEBIDA",
+        "O QUE ESTA JORNADA REVELA",
         "CELEBRAÇÃO",
         "EXPERIÊNCIA",
         "CONCLUSÃO",
@@ -635,6 +645,7 @@ def active_experiences() -> pd.DataFrame:
         df = df[df["status"].apply(is_active)].copy()
 
     df["_ordem"] = pd.to_numeric(df.get("ordem", 0), errors="coerce").fillna(9999)
+
     return df.sort_values("_ordem")
 
 
@@ -655,6 +666,11 @@ def current_steps(experience_id: str) -> pd.DataFrame:
     return df.sort_values("ordem").reset_index(drop=True)
 
 
+def is_kombucha_experience(value: Any) -> bool:
+    text = safe(value).lower()
+    return "kombucha" in text or "sem alcool" in text or "sem álcool" in text
+
+
 def build_landing_overview(experience_id: str) -> str:
     steps = current_steps(experience_id)
 
@@ -670,11 +686,12 @@ def build_landing_overview(experience_id: str) -> str:
 
     for _, row in steps.iterrows():
         jornada_numero = esc(row.get("jornada_numero"))
+        conceito = esc(row.get("conceito_sensorial"))
         instrucao = esc(row.get("instrucao_cliente"))
 
         overview += (
             f'<div class="yv-overview-card">'
-            f'<b>Jornada {jornada_numero}</b><br>'
+            f'<b>Jornada {jornada_numero} - {conceito}</b><br>'
             f'{instrucao}'
             f'</div>'
         )
@@ -736,12 +753,14 @@ def render_journey(row: Dict[str, Any], idx: int, total: int) -> None:
             "</div>"
         )
 
+    beverage_label = "Bebida" if is_kombucha_experience(row.get("experience_id")) else "Vinho"
+
     step_html = (
         '<div class="yv-steps">'
         f'<div class="yv-step"><b>1. Carne</b><br>{esc(row.get("carne"))}</div>'
         f'<div class="yv-step"><b>2. Queijo</b><br>{esc(row.get("queijo"))}</div>'
         '<div class="yv-step"><b>3. Juntos</b><br>Prove a dupla na ordem indicada.</div>'
-        f'<div class="yv-step"><b>4. Vinho</b><br>{esc(row.get("vinho"))}</div>'
+        f'<div class="yv-step"><b>4. {beverage_label}</b><br>{esc(row.get("vinho"))}</div>'
         "</div>"
     )
 
@@ -852,9 +871,9 @@ def render_celebration() -> None:
     <div class="yv-kicker">YVORA</div>
     <div class="yv-h1">Degustação concluída</div>
     <div class="yv-story">
-      Obrigado por viver esta experiência. Você não apenas provou carnes, queijos e vinhos:
-      participou de uma leitura guiada de sabor criada para revelar como a culinária brasileira
-      contemporânea pode ganhar novas camadas quando encontra técnica, vinho e percepção.
+      Obrigado por viver esta experiência. Você participou de uma leitura guiada de sabor
+      criada para revelar como a culinária brasileira contemporânea pode ganhar novas camadas
+      quando encontra técnica, bebida e percepção.
     </div>
     <br>
     <div class="yv-white-muted">
@@ -887,7 +906,7 @@ def render_experience(experience_id: str) -> None:
     idx = max(0, min(st.session_state.step_index, len(steps) - 1))
     row = steps.iloc[idx].to_dict()
 
-    render_header("Siga o ritual. Prove, combine, depois deixe o vinho transformar.")
+    render_header("Siga o ritual. Prove, combine e deixe a bebida transformar.")
 
     tipo = safe(row.get("tipo_tela"))
 
