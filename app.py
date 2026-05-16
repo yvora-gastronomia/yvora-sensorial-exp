@@ -85,6 +85,7 @@ def split_story_blocks(text: str) -> List[Tuple[str, str]]:
         "VINHO",
         "BEBIDA",
         "O QUE ESTA JORNADA REVELA",
+        "AGORA É COM VOCÊ",
         "CELEBRAÇÃO",
         "EXPERIÊNCIA",
         "CONCLUSÃO",
@@ -163,54 +164,55 @@ html, body, [data-testid="stAppViewContainer"] {{
     margin: 0;
     color: {BRAND_BLUE};
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(27px, 4vw, 46px);
-    line-height: 1.0;
+    font-size: clamp(30px, 4.5vw, 48px);
+    line-height: 1.05;
     letter-spacing: .2px;
 }}
 
 .yv-subtitle {{
     margin-top: 7px;
-    color: rgba(14,42,71,.68);
-    font-size: 14px;
+    color: rgba(14,42,71,.70);
+    font-size: clamp(16px, 2.8vw, 19px);
+    line-height: 1.45;
 }}
 
 .yv-card {{
     background: rgba(255,255,255,.72);
     border: 1px solid rgba(14,42,71,.12);
     border-radius: 30px;
-    padding: clamp(20px, 4vw, 38px);
+    padding: clamp(22px, 4vw, 40px);
     box-shadow: 0 18px 50px rgba(14,42,71,.08);
     margin-bottom: 18px;
 }}
 
 .yv-kicker {{
     color: {BRAND_GOLD};
-    font-size: 12px;
-    letter-spacing: 2.25px;
+    font-size: clamp(13px, 2.4vw, 15px);
+    letter-spacing: 2px;
     text-transform: uppercase;
     font-weight: 900;
 }}
 
 .yv-h1 {{
     font-family: Georgia, serif;
-    font-size: clamp(38px, 6vw, 78px);
-    line-height: .98;
+    font-size: clamp(42px, 7vw, 82px);
+    line-height: 1.02;
     margin: 10px 0 16px;
-    letter-spacing: -1.4px;
+    letter-spacing: -1.2px;
 }}
 
 .yv-h2 {{
     font-family: Georgia, serif;
     color: {BRAND_BLUE};
-    font-size: clamp(25px, 4vw, 44px);
-    line-height: 1.05;
-    margin: 0 0 10px;
+    font-size: clamp(30px, 5vw, 46px);
+    line-height: 1.08;
+    margin: 0 0 12px;
 }}
 
 .yv-muted {{
-    color: rgba(71,55,46,.72);
-    font-size: 15px;
-    line-height: 1.56;
+    color: rgba(71,55,46,.76);
+    font-size: clamp(17px, 2.8vw, 20px);
+    line-height: 1.65;
 }}
 
 .yv-cinema {{
@@ -245,7 +247,7 @@ html, body, [data-testid="stAppViewContainer"] {{
 .yv-cinema-content {{
     position: relative;
     z-index: 2;
-    padding: clamp(26px, 6vw, 66px);
+    padding: clamp(30px, 6vw, 68px);
     max-width: 1040px;
 }}
 
@@ -261,16 +263,16 @@ html, body, [data-testid="stAppViewContainer"] {{
 }}
 
 .yv-story {{
-    font-size: clamp(17px, 1.65vw, 22px);
-    line-height: 1.58;
-    color: rgba(250,246,239,.92);
+    font-size: clamp(19px, 2.2vw, 24px);
+    line-height: 1.62;
+    color: rgba(250,246,239,.93);
     max-width: 1000px;
 }}
 
 .yv-white-muted {{
-    color: rgba(250,246,239,.76);
-    font-size: 15px;
-    line-height: 1.55;
+    color: rgba(250,246,239,.84);
+    font-size: clamp(17px, 3.2vw, 21px);
+    line-height: 1.65;
 }}
 
 .yv-overview {{
@@ -284,12 +286,15 @@ html, body, [data-testid="stAppViewContainer"] {{
     background: rgba(14,42,71,.055);
     border: 1px solid rgba(14,42,71,.10);
     border-radius: 22px;
-    padding: 18px;
+    padding: 20px;
     min-height: 120px;
+    font-size: clamp(17px, 3.2vw, 20px);
+    line-height: 1.55;
 }}
 
 .yv-overview-card b {{
     color: {BRAND_BLUE};
+    font-size: clamp(18px, 3.4vw, 21px);
 }}
 
 .yv-blocks {{
@@ -301,11 +306,12 @@ html, body, [data-testid="stAppViewContainer"] {{
 
 .yv-story-block {{
     border-radius: 24px;
-    padding: 18px 20px;
+    padding: 20px 22px;
     border: 1px solid rgba(250,246,239,.16);
     background: rgba(250,246,239,.09);
-    color: rgba(250,246,239,.90);
-    line-height: 1.55;
+    color: rgba(250,246,239,.93);
+    font-size: clamp(18px, 3.6vw, 22px);
+    line-height: 1.68;
 }}
 
 .yv-story-block:nth-child(even) {{
@@ -314,11 +320,11 @@ html, body, [data-testid="stAppViewContainer"] {{
 
 .yv-story-block-title {{
     color: {BRAND_GOLD};
-    letter-spacing: 1.8px;
-    font-size: 12px;
+    letter-spacing: 1.4px;
+    font-size: clamp(13px, 2.8vw, 15px);
     font-weight: 900;
     text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }}
 
 .yv-steps {{
@@ -332,12 +338,15 @@ html, body, [data-testid="stAppViewContainer"] {{
     background: rgba(250,246,239,.10);
     border: 1px solid rgba(250,246,239,.18);
     border-radius: 22px;
-    padding: 16px;
-    color: rgba(250,246,239,.88);
+    padding: 18px;
+    color: rgba(250,246,239,.92);
+    font-size: clamp(17px, 3.2vw, 20px);
+    line-height: 1.5;
 }}
 
 .yv-step b {{
     color: {BRAND_GOLD};
+    font-size: clamp(17px, 3.2vw, 20px);
 }}
 
 .yv-progress {{
@@ -348,7 +357,7 @@ html, body, [data-testid="stAppViewContainer"] {{
 }}
 
 .yv-dot {{
-    height: 7px;
+    height: 8px;
     flex: 1;
     border-radius: 999px;
     background: rgba(14,42,71,.15);
@@ -363,7 +372,7 @@ html, body, [data-testid="stAppViewContainer"] {{
     background: rgba(255,255,255,.74);
     border: 1px solid rgba(14,42,71,.10);
     border-radius: 28px;
-    padding: 22px 26px;
+    padding: 24px 26px;
     margin: 18px 0;
 }}
 
@@ -371,11 +380,12 @@ html, body, [data-testid="stAppViewContainer"] {{
     color: {BRAND_BLUE};
     font-weight: 800;
     margin-bottom: 12px;
+    font-size: clamp(18px, 3.4vw, 22px);
 }}
 
 .yv-feedback-selected {{
-    color: rgba(71,55,46,.72);
-    font-size: 14px;
+    color: rgba(71,55,46,.76);
+    font-size: clamp(16px, 3vw, 19px);
     margin-top: 8px;
 }}
 
@@ -389,9 +399,10 @@ html, body, [data-testid="stAppViewContainer"] {{
     background: {BRAND_BLUE} !important;
     color: {BRAND_BG_SOFT} !important;
     border: 1px solid rgba(14,42,71,.2) !important;
-    min-height: 2.9rem !important;
+    min-height: 3.15rem !important;
+    font-size: 17px !important;
     font-weight: 900 !important;
-    padding: 0 22px !important;
+    padding: 0 24px !important;
 }}
 
 .stTextInput input,
@@ -399,6 +410,7 @@ html, body, [data-testid="stAppViewContainer"] {{
     border-radius: 18px !important;
     border: 1px solid rgba(14,42,71,.16) !important;
     background: rgba(255,255,255,.82) !important;
+    font-size: 17px !important;
 }}
 
 button[kind="secondary"] {{
@@ -412,8 +424,9 @@ button[kind="secondary"] {{
 
 @media(max-width:760px) {{
     .block-container {{
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        padding-top: 0.8rem;
     }}
 
     .yv-overview,
@@ -427,7 +440,49 @@ button[kind="secondary"] {{
     }}
 
     .yv-cinema:before {{
-        background: linear-gradient(180deg, rgba(6,22,38,.95), rgba(6,22,38,.78));
+        background: linear-gradient(180deg, rgba(6,22,38,.96), rgba(6,22,38,.82));
+    }}
+
+    .yv-cinema-content {{
+        padding: 30px 20px;
+    }}
+
+    .yv-h1 {{
+        font-size: clamp(42px, 12vw, 60px);
+        line-height: 1.02;
+    }}
+
+    .yv-h2 {{
+        font-size: clamp(30px, 8vw, 42px);
+    }}
+
+    .yv-title {{
+        font-size: clamp(27px, 7vw, 38px);
+    }}
+
+    .yv-subtitle {{
+        font-size: 17px;
+    }}
+
+    .yv-story {{
+        font-size: clamp(19px, 4.2vw, 23px);
+        line-height: 1.62;
+    }}
+
+    .yv-story-block {{
+        font-size: clamp(19px, 4.5vw, 23px);
+        line-height: 1.7;
+        padding: 22px 20px;
+    }}
+
+    .yv-step {{
+        font-size: clamp(18px, 4.2vw, 21px);
+        line-height: 1.55;
+    }}
+
+    .stButton > button {{
+        font-size: 18px !important;
+        min-height: 3.35rem !important;
     }}
 }}
 </style>
